@@ -230,6 +230,9 @@ public class SignIn extends JFrame {
 				JFrame frame = new Chat(username, soketZaKomunkaciju, ulazniTokOdServera, izlazniTokKaServeru);
 				frame.setVisible(true);
 			}
+			else if(serverOdgPass.equals("user vec ulogovan")) {
+				lblUsernameError.setText("User vec ulogovan");
+			}
 		}
 	}
 	
@@ -256,6 +259,11 @@ public class SignIn extends JFrame {
 		}
 		
 		return true;
+		
+	}
+	
+	public void ubrzaj() {
+		txtUsername.setText("milan");
 		
 	}
 }

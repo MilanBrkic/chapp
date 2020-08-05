@@ -15,7 +15,7 @@ public class ServerNit extends Thread{
 	ServerNit[] klijenti = null;
 	String[] useri = {"milan", "milica", "kaca"};
 	Map<String, String> sifre = new  HashMap<String, String>();
-	
+	private String username;
 	
 	
 	public ServerNit(Socket klijentSoket, ServerNit[] klijenti) {
@@ -50,6 +50,7 @@ public class ServerNit extends Thread{
 				rezim = ulazniTokOdKlijenta.readLine();
 				if(rezim.equals("Sign-In")) {
 					username = proveraSignIn();
+					setUsername(username);
 				}
 				else if(rezim.equals("izlaz")) {
 					break;
@@ -99,12 +100,30 @@ public class ServerNit extends Thread{
 				return null;
 			}
 			else {
-				izlazniTokKaKlijentu.println("tacan password");
+				
 				System.out.println("tacan password");
+				
+				
+				//tacan password provera da li je vec ulogovan user
+				for (int i = 0; i < klijenti.length; i++) {
+					if(klijenti[i]!=null) {
+						if(klijenti[i]!=this && klijenti[i].username!=null && klijenti[i].username.equals(username)) {
+							izlazniTokKaKlijentu.println("user vec ulogovan");
+							System.out.println("user vec ulogovan");
+							return null;
+						}
+					}
+				}
+				izlazniTokKaKlijentu.println("tacan password");
+				
 				return username;
 			}
 			
 		}
 		
+	}
+	
+	public void setUsername(String username) {
+		this.username = username;
 	}
 }
