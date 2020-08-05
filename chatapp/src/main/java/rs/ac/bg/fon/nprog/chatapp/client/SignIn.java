@@ -11,14 +11,18 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
+import java.awt.Label;
 import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class SignIn extends JFrame {
 	static Socket soketZaKomunkaciju = null;
@@ -29,7 +33,7 @@ public class SignIn extends JFrame {
 	private JTextField txtPassword;
 	private JLabel lblUsernameError;
 	private JLabel lblPasswordError;
-
+	private JButton btnSignIn;
 	/**
 	 * Launch the application.
 	 */
@@ -88,7 +92,7 @@ public class SignIn extends JFrame {
 		txtPassword.setBounds(168, 126, 146, 20);
 		contentPane.add(txtPassword);
 		
-		final JButton btnSignIn = new JButton("Sign-In");
+		btnSignIn = new JButton("Sign-In");
 		btnSignIn.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -104,24 +108,7 @@ public class SignIn extends JFrame {
 				
 				try {
 					if(proveraUserPass(username, password)) {
-						izlazniTokKaServeru.println(username);
-						
-						String serverOdgUser = ulazniTokOdServera.readLine();
-						if(serverOdgUser.equals("username ne postoji")) {
-							lblUsernameError.setText("username ne postoji");
-						}
-						else if(serverOdgUser.equals("username postoji")){
-							lblUsernameError.setText("username postoji");
-							izlazniTokKaServeru.println(password);
-							
-							String serverOdgPass = ulazniTokOdServera.readLine();
-							if(serverOdgPass.equals("netacan password")) {
-								lblPasswordError.setText("netacan password");
-							}
-							else if(serverOdgPass.equals("tacan password")) {
-								lblPasswordError.setText("tacan password");
-							}
-						}
+						slanjeServeruNaProveru(username, password);
 						
 					}
 				} catch (Exception e2) {
@@ -166,6 +153,70 @@ public class SignIn extends JFrame {
 		
 		
 	}
+	
+	public JLabel getLblUsernameError() {
+		return lblUsernameError;
+	}
+	
+	public JLabel getLblPasswordError() {
+		return lblPasswordError;
+	}
+	
+	public JTextField getTxtUsername() {
+		return txtUsername;
+	}
+	
+	public JTextField getTxtPassword() {
+		return txtPassword;
+	}
+	
+	public JButton getBtnSignIn() {
+		return btnSignIn;
+	}
+	public Socket getSoketZaKom() {
+		return soketZaKomunkaciju;
+	}
+	
+	public void setSoketZaKom(Socket soket) {
+		soketZaKomunkaciju = soket;
+	}
+	
+	public PrintStream getIzlazniTokKaServeru() {
+		return izlazniTokKaServeru;
+	}
+	
+	public void setIzlazniTokKaServeru(PrintStream izlazniTokKaServeru) {
+		this.izlazniTokKaServeru = izlazniTokKaServeru;
+	}
+	public BufferedReader getUlazniTokOdServera() {
+		return ulazniTokOdServera;
+	}
+	
+	public void setUlazniTokOdServera(BufferedReader ulazniTokOdServera) {
+		this.ulazniTokOdServera = ulazniTokOdServera;
+	}
+	
+	public void slanjeServeruNaProveru(String username, String password) throws IOException {
+		izlazniTokKaServeru.println(username);
+		
+		String serverOdgUser = ulazniTokOdServera.readLine();
+		if(serverOdgUser.equals("username ne postoji")) {
+			lblUsernameError.setText("username ne postoji");
+		}
+		else if(serverOdgUser.equals("username postoji")){
+			lblUsernameError.setText("username postoji");
+			izlazniTokKaServeru.println(password);
+			
+			String serverOdgPass = ulazniTokOdServera.readLine();
+			if(serverOdgPass.equals("netacan password")) {
+				lblPasswordError.setText("netacan password");
+			}
+			else if(serverOdgPass.equals("tacan password")) {
+				
+			}
+		}
+	}
+	
 	
 	public boolean proveraUserPass(String username, String password) {
 		if(username.length()==0) {
