@@ -1,6 +1,7 @@
 package rs.ac.bg.fon.nprog.chatapp.server;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
@@ -36,6 +37,7 @@ public class ServerNit extends Thread{
 	public void run() {
 		String username;
 		String password;
+		String rezim;
 		sifre.put("milan", "milan");
 		sifre.put("milica", "milica");
 		sifre.put("kaca", "kaca");
@@ -45,41 +47,64 @@ public class ServerNit extends Thread{
 			ulazniTokOdKlijenta = new BufferedReader(new InputStreamReader(soketZaKom.getInputStream()));
 			izlazniTokKaKlijentu = new PrintStream(soketZaKom.getOutputStream());
 			while(true) {
-				//citanje username od klijenta
-				username = ulazniTokOdKlijenta.readLine();
-				username.trim();
-				
-				
-				if(!daLiPostoji(username)) {//provera da li se user nalazi u bazi
-					izlazniTokKaKlijentu.println("username ne postoji");
-					System.out.println("Nije dobar username: "+username);
+				rezim = ulazniTokOdKlijenta.readLine();
+				if(rezim.equals("Sign-In")) {
+					username = proveraSignIn();
 				}
-				else {
-					izlazniTokKaKlijentu.println("username postoji");
-					System.out.println("Dobar username: "+username);
-					
-					//citanje passworda
-					password = ulazniTokOdKlijenta.readLine();
-					String praviPass = sifre.get(username);
-					
-					if(!praviPass.equals(password)) {
-						izlazniTokKaKlijentu.println("netacan password");
-						System.out.println("netacan password");
-					}
-					else {
-						izlazniTokKaKlijentu.println("tacan password");
-						System.out.println("tacan password");
-					}
-					
+				else if(rezim.equals("izlaz")) {
+					break;
 				}
+				
 			}
 			
+			soketZaKom.close();
+			ulazniTokOdKlijenta.close();
+			izlazniTokKaKlijentu.close();
 			
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
+		for (int i = 0; i < klijenti.length; i++) {
+			if(klijenti[i]==this) {
+				klijenti[i] = null;
+			}
+		}
+	}
+	
+	public String proveraSignIn() throws IOException {
+		//citanje username od klijenta
+		String password;
+		String username = ulazniTokOdKlijenta.readLine();
+		username.trim();
+		
+		
+		if(!daLiPostoji(username)) {//provera da li se user nalazi u bazi
+			izlazniTokKaKlijentu.println("username ne postoji");
+			System.out.println("Nije dobar username: "+username);
+			return null;
+		}
+		else {
+			izlazniTokKaKlijentu.println("username postoji");
+			System.out.println("Dobar username: "+username);
+			
+			//citanje passworda
+			password = ulazniTokOdKlijenta.readLine();
+			String praviPass = sifre.get(username);
+			
+			if(!praviPass.equals(password)) {
+				izlazniTokKaKlijentu.println("netacan password");
+				System.out.println("netacan password");
+				return null;
+			}
+			else {
+				izlazniTokKaKlijentu.println("tacan password");
+				System.out.println("tacan password");
+				return username;
+			}
+			
+		}
 		
 	}
 }

@@ -23,6 +23,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.JPasswordField;
 
 public class SignIn extends JFrame {
 	static Socket soketZaKomunkaciju = null;
@@ -87,7 +88,7 @@ public class SignIn extends JFrame {
 		contentPane.add(txtUsername);
 		txtUsername.setColumns(10);
 		
-		txtPassword = new JTextField();
+		txtPassword = new JPasswordField();
 		txtPassword.setColumns(10);
 		txtPassword.setBounds(168, 126, 146, 20);
 		contentPane.add(txtPassword);
@@ -150,7 +151,19 @@ public class SignIn extends JFrame {
 		lblPasswordError.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		lblPasswordError.setBounds(168, 109, 146, 14);
 		contentPane.add(lblPasswordError);
-		
+		this.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				izlazniTokKaServeru.println("izlaz");
+				try {
+					soketZaKomunkaciju.close();
+					izlazniTokKaServeru.close();
+					ulazniTokOdServera.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
 		
 	}
 	
@@ -197,6 +210,7 @@ public class SignIn extends JFrame {
 	}
 	
 	public void slanjeServeruNaProveru(String username, String password) throws IOException {
+		izlazniTokKaServeru.println("Sign-In");
 		izlazniTokKaServeru.println(username);
 		
 		String serverOdgUser = ulazniTokOdServera.readLine();
@@ -204,7 +218,7 @@ public class SignIn extends JFrame {
 			lblUsernameError.setText("username ne postoji");
 		}
 		else if(serverOdgUser.equals("username postoji")){
-			lblUsernameError.setText("username postoji");
+			
 			izlazniTokKaServeru.println(password);
 			
 			String serverOdgPass = ulazniTokOdServera.readLine();
@@ -212,7 +226,9 @@ public class SignIn extends JFrame {
 				lblPasswordError.setText("netacan password");
 			}
 			else if(serverOdgPass.equals("tacan password")) {
-				
+				this.setVisible(false);
+				JFrame frame = new Chat(username, soketZaKomunkaciju, ulazniTokOdServera, izlazniTokKaServeru);
+				frame.setVisible(true);
 			}
 		}
 	}
