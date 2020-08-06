@@ -55,7 +55,12 @@ public class ServerNit extends Thread{
 				else if(rezim.equals("izlaz")) {
 					break;
 				}
-				
+				else if(rezim.equals("getUsers")) {
+					izlazniTokKaKlijentu.println(useri.length);
+					for (int i = 0; i < useri.length; i++) {
+						izlazniTokKaKlijentu.println(useri[i]);
+					}
+				}
 			}
 			
 			soketZaKom.close();

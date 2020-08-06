@@ -55,6 +55,7 @@ public class SignIn extends JFrame {
 				try {
 					SignIn frame = new SignIn();
 					frame.setVisible(true);
+					frame.ubrzaj();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -67,7 +68,7 @@ public class SignIn extends JFrame {
 	 */
 	public SignIn() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setBounds(450, 250, 450, 300);
 		contentPane = new JPanel();
 		
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -229,6 +230,7 @@ public class SignIn extends JFrame {
 				this.setVisible(false);
 				JFrame frame = new Chat(username, soketZaKomunkaciju, ulazniTokOdServera, izlazniTokKaServeru);
 				frame.setVisible(true);
+				
 			}
 			else if(serverOdgPass.equals("user vec ulogovan")) {
 				lblUsernameError.setText("User vec ulogovan");
@@ -264,6 +266,7 @@ public class SignIn extends JFrame {
 	
 	public void ubrzaj() {
 		txtUsername.setText("milan");
-		
+		txtPassword.setText("milan");
+		getBtnSignIn().doClick();
 	}
 }
