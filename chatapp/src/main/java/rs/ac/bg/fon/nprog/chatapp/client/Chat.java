@@ -44,6 +44,11 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.ListSelectionModel;
 import javax.swing.JComboBox;
 import javax.swing.UIManager;
+import javax.swing.JTextArea;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class Chat extends JFrame {
 
@@ -135,16 +140,50 @@ public class Chat extends JFrame {
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		panel_1.add(list);
 		
-		txtWriter = new JTextField();
-		txtWriter.setBounds(139, 340, 405, 22);
-		contentPane.add(txtWriter);
-		txtWriter.setColumns(10);
 		
-		JButton btnSend = new JButton("Send");
+		
+		
+		
+		JPanel panel_2 = new JPanel();
+		panel_2.setBounds(140, 11, 494, 318);
+		contentPane.add(panel_2);
+		panel_2.setLayout(new BorderLayout(0, 0));
+		
+		JScrollPane scrollPane_2 = new JScrollPane();
+		panel_2.add(scrollPane_2, BorderLayout.CENTER);
+		
+		final JTextArea textArea = new JTextArea();
+		scrollPane_2.setViewportView(textArea);
+		
+		final JButton btnSend = new JButton("Send");
+		btnSend.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String txt = txtWriter.getText();
+				if(txt!="" && !txt.equals("")) {
+					textArea.append(txt+"\n");
+					txtWriter.setText("");
+					txtWriter.requestFocus();
+				}
+				txtWriter.requestFocus();
+			}
+		});
+		
 		btnSend.setBounds(554, 339, 80, 23);
 		contentPane.add(btnSend);
 		
 		
+		txtWriter = new JTextField();
+		txtWriter.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+				      btnSend.doClick();
+				}
+			}
+		});
+		txtWriter.setBounds(139, 340, 405, 22);
+		contentPane.add(txtWriter);
+		txtWriter.setColumns(10);
 		
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
