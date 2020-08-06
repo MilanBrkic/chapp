@@ -8,14 +8,18 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class ServerNit extends Thread{
 	BufferedReader ulazniTokOdKlijenta= null;
 	PrintStream izlazniTokKaKlijentu = null;
 	Socket soketZaKom = null;
 	ServerNit[] klijenti = null;
-	String[] useri = {"milan", "milica", "kaca"};
+	String[] useri = {"milan", "milica", "kaca", "lalkec", "nesto"};
 	Map<String, String> sifre = new  HashMap<String, String>();
 	private String username;
+	Gson gson = new GsonBuilder().create();
 	
 	
 	public ServerNit(Socket klijentSoket, ServerNit[] klijenti) {
@@ -41,7 +45,7 @@ public class ServerNit extends Thread{
 		sifre.put("milan", "milan");
 		sifre.put("milica", "milica");
 		sifre.put("kaca", "kaca");
-		
+		sifre.put("lalkec", "lalkec");
 		
 		try {
 			ulazniTokOdKlijenta = new BufferedReader(new InputStreamReader(soketZaKom.getInputStream()));
@@ -56,10 +60,8 @@ public class ServerNit extends Thread{
 					break;
 				}
 				else if(rezim.equals("getUsers")) {
-					izlazniTokKaKlijentu.println(useri.length);
-					for (int i = 0; i < useri.length; i++) {
-						izlazniTokKaKlijentu.println(useri[i]);
-					}
+					izlazniTokKaKlijentu.println(gson.toJson(useri));
+
 				}
 			}
 			

@@ -8,6 +8,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -33,6 +35,10 @@ import javax.swing.SpringLayout;
 import java.awt.CardLayout;
 import javax.swing.JList;
 import javax.swing.border.LineBorder;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.awt.Color;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.ListSelectionModel;
@@ -48,7 +54,7 @@ public class Chat extends JFrame {
 	private String username;
 	private Socket soketZaKomunikaciju;
 	private JTextField txtWriter;
-
+	private Gson gson;
 	/**
 	 * Launch the application.
 	 */
@@ -75,6 +81,7 @@ public class Chat extends JFrame {
 		this.soketZaKomunikaciju = soketZaKomunikaciju;
 		this.ulazniTokOdServera = ulazniTokOdServera;
 		this.izlazniTokKaServeru = izlazniTokKaServeru;
+		gson =  new GsonBuilder().create();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(300, 200, 660, 410);
 		contentPane = new JPanel();
@@ -106,8 +113,7 @@ public class Chat extends JFrame {
 		panel_1.setLayout(new BoxLayout(panel_1, BoxLayout.Y_AXIS));
 		
 		DefaultListModel<String> l1 = new DefaultListModel<String>();
-		l1.addElement("da");
-		l1.addElement("ne");
+		
 		try {
 			l1 = getUsersFromServer();
 		} catch (NumberFormatException e1) {
@@ -118,10 +124,7 @@ public class Chat extends JFrame {
 			e1.printStackTrace();
 		}
 		
-		l1.addElement("da");
-		l1.addElement("da");
-		l1.addElement("ne");l1.addElement("da");
-		l1.addElement("ne");
+		
 		
 		JLabel lblNewLabel_1 = new JLabel("Available chats:");
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 10));
@@ -156,14 +159,14 @@ public class Chat extends JFrame {
 		DefaultListModel<String> l1 = new DefaultListModel<String>();
 		String user;
 		izlazniTokKaServeru.println("getUsers");
-		int n =	Integer.parseInt(ulazniTokOdServera.readLine()); 
-		for (int i = 0; i < n; i++) {
-			user = ulazniTokOdServera.readLine();
-			if(!user.equals(username)) {
-				l1.addElement(user);
-			}
-			
+		
+		String s = ulazniTokOdServera.readLine();
+		List<String> lista = Arrays.asList(gson.fromJson(s, String[].class));
+		
+		for (String string : lista) {
+			l1.addElement(string);
 		}
+
 		return l1;
 		
 	}

@@ -101,6 +101,8 @@ public class SignIn extends JFrame {
 				
 			}
 		});
+		
+		//sign-in
 		btnSignIn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				lblUsernameError.setText("");
@@ -152,6 +154,8 @@ public class SignIn extends JFrame {
 		lblPasswordError.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		lblPasswordError.setBounds(168, 109, 146, 14);
 		contentPane.add(lblPasswordError);
+		
+		
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				izlazniTokKaServeru.println("izlaz");
