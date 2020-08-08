@@ -6,21 +6,24 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import rs.ac.bg.fon.nprog.chatapp.client.TextMessage;
 
 public class ServerNit extends Thread{
 	BufferedReader ulazniTokOdKlijenta= null;
 	PrintStream izlazniTokKaKlijentu = null;
 	Socket soketZaKom = null;
 	ServerNit[] klijenti = null;
-	String[] useri = {"milan", "milica", "kaca", "lalkec", "nesto"};
+	String[] useri = {"milan", "milica", "kaca", "lalkec", "dane", "acim"};
 	Map<String, String> sifre = new  HashMap<String, String>();
 	private String username;
 	Gson gson = new GsonBuilder().create();
-	
+	LinkedList<TextMessage> poruke;
 	
 	public ServerNit(Socket klijentSoket, ServerNit[] klijenti) {
 		this.soketZaKom = klijentSoket;
@@ -46,8 +49,12 @@ public class ServerNit extends Thread{
 		sifre.put("milica", "milica");
 		sifre.put("kaca", "kaca");
 		sifre.put("lalkec", "lalkec");
+		sifre.put("dane","dane");
+		sifre.put("acim","acim");
+		
 		
 		try {
+			poruke = new LinkedList<TextMessage>();
 			ulazniTokOdKlijenta = new BufferedReader(new InputStreamReader(soketZaKom.getInputStream()));
 			izlazniTokKaKlijentu = new PrintStream(soketZaKom.getOutputStream());
 			while(true) {
@@ -55,6 +62,11 @@ public class ServerNit extends Thread{
 				if(rezim.equals("Sign-In")) {
 					username = proveraSignIn();
 					setUsername(username);
+					for (int i = 0; i < klijenti.length; i++) {
+						if(klijenti[i]!=null) {
+							System.out.println(klijenti[i]);
+						}
+					}
 				}
 				else if(rezim.equals("izlaz")) {
 					break;
@@ -62,6 +74,23 @@ public class ServerNit extends Thread{
 				else if(rezim.equals("getUsers")) {
 					izlazniTokKaKlijentu.println(gson.toJson(useri));
 
+				}
+				else if(rezim.equals("message")) {
+					String s = ulazniTokOdKlijenta.readLine();
+					TextMessage txtmsg =  gson.fromJson(s, TextMessage.class);
+					System.out.println(txtmsg);
+					
+					
+					for (int i = 0; i < klijenti.length; i++) {
+						if(klijenti[i]!=null) {
+							System.out.println(klijenti[i]);
+						}
+						if(klijenti[i]!=null  && klijenti[i].username!=null
+								&& ( klijenti[i].username.equals(txtmsg.getSender()) ||
+								klijenti[i].username.equals(txtmsg.getReceiver()) ) ){
+							klijenti[i].izlazniTokKaKlijentu.println(s);
+						}
+					}
 				}
 			}
 			
@@ -130,6 +159,11 @@ public class ServerNit extends Thread{
 		
 	}
 	
+	@Override
+	public String toString() {
+		return "ServerNit [username=" + username + "]";
+	}
+
 	public void setUsername(String username) {
 		this.username = username;
 	}

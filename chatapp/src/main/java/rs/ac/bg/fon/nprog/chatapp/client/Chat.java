@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -28,6 +29,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.border.BevelBorder;
 import java.awt.Rectangle;
+import java.awt.TextArea;
 import java.awt.Component;
 import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
@@ -35,6 +37,8 @@ import javax.swing.SpringLayout;
 import java.awt.CardLayout;
 import javax.swing.JList;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -57,9 +61,12 @@ public class Chat extends JFrame {
 	private PrintStream izlazniTokKaServeru = null;
 	private BufferedReader ulazniTokOdServera = null;
 	private String username;
+	private String partner;
 	private Socket soketZaKomunikaciju;
 	private JTextField txtWriter;
 	private Gson gson;
+	private JTextArea textArea;
+	Thread A = null;
 	/**
 	 * Launch the application.
 	 */
@@ -68,8 +75,9 @@ public class Chat extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-//					Chat frame = new Chat();
-//					frame.setVisible(true);
+					
+					
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -80,7 +88,8 @@ public class Chat extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Chat(String username, Socket soketZaKomunikaciju, BufferedReader ulazniTokOdServera, PrintStream izlazniTokKaServeru) {
+	public Chat(final String username, Socket soketZaKomunikaciju, BufferedReader ulazniTokOdServera, final PrintStream izlazniTokKaServeru) {
+		partner = null;
 		setResizable(false);
 		this.username = username;
 		this.soketZaKomunikaciju = soketZaKomunikaciju;
@@ -135,15 +144,6 @@ public class Chat extends JFrame {
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		panel_1.add(lblNewLabel_1);
 		
-		JList<String> list = new JList<String>(l1);
-		list.setBackground(UIManager.getColor("Panel.background"));
-		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		panel_1.add(list);
-		
-		
-		
-		
-		
 		JPanel panel_2 = new JPanel();
 		panel_2.setBounds(140, 11, 494, 318);
 		contentPane.add(panel_2);
@@ -152,17 +152,24 @@ public class Chat extends JFrame {
 		JScrollPane scrollPane_2 = new JScrollPane();
 		panel_2.add(scrollPane_2, BorderLayout.CENTER);
 		
-		final JTextArea textArea = new JTextArea();
+		textArea = new JTextArea();
 		scrollPane_2.setViewportView(textArea);
+		textArea.setVisible(false);
+		
 		
 		final JButton btnSend = new JButton("Send");
 		btnSend.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(!textArea.isVisible()) return;
 				String txt = txtWriter.getText();
-				if(txt!="" && !txt.equals("")) {
-					textArea.append(txt+"\n");
+				if(txt!="" && !txt.equals("") && partner!=null) {
+					TextMessage msg = new TextMessage(username, partner, txt, new GregorianCalendar());
+					izlazniTokKaServeru.println("message");
+					izlazniTokKaServeru.println(gson.toJson(msg));
+					
+					
 					txtWriter.setText("");
-					txtWriter.requestFocus();
+					
 				}
 				txtWriter.requestFocus();
 			}
@@ -185,10 +192,41 @@ public class Chat extends JFrame {
 		contentPane.add(txtWriter);
 		txtWriter.setColumns(10);
 		
+		
+		
+		JList<String> list = new JList<String>(l1);
+		list.setBackground(UIManager.getColor("Panel.background"));
+		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		list.addListSelectionListener(new ListSelectionListener() {
+			
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				textArea.setText("");
+				JList list = (JList) e.getSource();
+				int index = list.getSelectedIndex();
+				partner = list.getSelectedValue().toString();
+				
+				if(!textArea.isVisible()) {
+					textArea.setVisible(true);
+					A = new Thread(new ChatThread(Chat.this.ulazniTokOdServera, textArea, list));
+					A.start();
+				}
+				
+				
+				
+				txtWriter.requestFocus();
+			}
+		});
+		panel_1.add(list);
+		
+		
+		
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				Chat.this.izlazniTokKaServeru.println("izlaz");
-				
+				if(A!=null && A.isAlive()) {
+					A.interrupt();
+				}
 				
 			}
 		});
@@ -203,10 +241,35 @@ public class Chat extends JFrame {
 		List<String> lista = Arrays.asList(gson.fromJson(s, String[].class));
 		
 		for (String string : lista) {
-			l1.addElement(string);
+			if(!username.equals(string))
+				l1.addElement(string);
 		}
+		
 
 		return l1;
 		
 	}
+
+//	@Override
+//	public void run() {
+//		String linijaOdServer;
+//		try {
+//			
+//			while((linijaOdServer = ulazniTokOdServera.readLine())!=null) {
+//				if(partner!=null) {
+//					TextMessage txtmsg = gson.fromJson(linijaOdServer, TextMessage.class);
+//					if(txtmsg.getReceiver().equals(partner)) {
+//						textArea.append("You: "+txtmsg.getMessage());
+//					}
+//					else if(txtmsg.getSender().equals(partner)) {
+//						textArea.append(partner+": "+txtmsg.getMessage());
+//					}
+//				}
+//				
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		
+//	}
 }

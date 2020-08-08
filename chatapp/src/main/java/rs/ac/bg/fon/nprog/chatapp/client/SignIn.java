@@ -55,7 +55,7 @@ public class SignIn extends JFrame {
 				try {
 					SignIn frame = new SignIn();
 					frame.setVisible(true);
-					frame.ubrzaj();
+//					frame.ubrzaj();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
