@@ -197,6 +197,7 @@ public class Chat extends JFrame {
 		
 		JList<String> list = new JList<String>(l1);
 		list.setBackground(UIManager.getColor("Panel.background"));
+		
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.addListSelectionListener(new ListSelectionListener() {
 			

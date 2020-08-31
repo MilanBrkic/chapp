@@ -28,9 +28,10 @@ public class ChatThread extends Thread{
 	public void run() {
 		String linijaOdServer;
 		try {
-			
+			boolean zaredomUser = false;
+			boolean zaredomPartner = false;
 			while((linijaOdServer = ulazniTokOdServera.readLine())!=null) {
-			
+				
 				if(linijaOdServer.equals("message")) {
 					String linijaOdServerPom = ulazniTokOdServera.readLine();
 					String partner = lista.getSelectedValue().toString();
@@ -38,10 +39,31 @@ public class ChatThread extends Thread{
 					
 					TextMessage txtmsg = gson.fromJson(linijaOdServerPom, TextMessage.class);
 					if(txtmsg.getReceiver().equals(partner)) {
-						textArea.append("You: "+txtmsg.getMessage()+"\n");
+						if(zaredomPartner) {
+							zaredomPartner = false;
+							textArea.append("\n");
+							textArea.append("You: "+txtmsg.getMessage()+"\n");
+						}
+						else {
+							
+							textArea.append(txtmsg.getMessage()+"\n");
+						}
+						
+						zaredomUser = true;
+						
 					}
-					else if(txtmsg.getSender().equals(partner)) {						
-						textArea.append(partner+": "+txtmsg.getMessage()+"\n");
+					else if(txtmsg.getSender().equals(partner)) {
+						if(zaredomUser) {
+							zaredomUser = false;
+							textArea.append("\n");
+							textArea.append(partner+": "+txtmsg.getMessage()+"\n");
+						}
+						else {
+							
+							textArea.append(txtmsg.getMessage()+"\n");
+						}
+						
+						zaredomPartner = true;
 					}
 				}
 				else if(linijaOdServer.equals("dajcet")) {
@@ -57,14 +79,36 @@ public class ChatThread extends Thread{
 					String partner = lista.getSelectedValue().toString();
 					textArea.setText("");
 					for (TextMessage textMessage : poruke) {
+						
 						if(!textMessage.getSender().equals(partner)) {
-							textArea.append("You: "+textMessage.getMessage()+"\n");
+							if(zaredomPartner) {
+								zaredomPartner = false;
+								textArea.append("\n");
+								textArea.append("you: "+textMessage.getMessage()+"\n");
+							}
+							else {
+								
+								textArea.append(textMessage.getMessage()+"\n");
+							}
+							
+							zaredomUser = true;
 						}
 						else {
-							textArea.append(partner+": "+textMessage.getMessage()+"\n");
+							if(zaredomUser) {
+								zaredomUser = false;
+								textArea.append("\n");
+								textArea.append(partner+": "+textMessage.getMessage()+"\n");
+							}
+							else {
+								
+								textArea.append(textMessage.getMessage()+"\n");
+							}
+							
+							zaredomPartner = true;
 						}
 							
 					}
+					
 				}
 				
 				

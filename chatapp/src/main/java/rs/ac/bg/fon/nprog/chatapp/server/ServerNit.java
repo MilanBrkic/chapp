@@ -87,6 +87,7 @@ public class ServerNit extends Thread{
 						if(klijenti[i]!=null && klijenti[i]!=this  && klijenti[i].username!=null
 								&& ( klijenti[i].username.equals(txtmsg.getSender()) ||
 								klijenti[i].username.equals(txtmsg.getReceiver()) ) ){
+							
 							klijenti[i].izlazniTokKaKlijentu.println("message");
 							klijenti[i].izlazniTokKaKlijentu.println(s);
 						}
