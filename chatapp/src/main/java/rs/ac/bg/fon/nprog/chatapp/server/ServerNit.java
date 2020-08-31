@@ -23,7 +23,7 @@ public class ServerNit extends Thread{
 	Map<String, String> sifre = new  HashMap<String, String>();
 	private String username;
 	Gson gson = new GsonBuilder().create();
-	LinkedList<TextMessage> poruke;
+	
 	
 	public ServerNit(Socket klijentSoket, ServerNit[] klijenti) {
 		this.soketZaKom = klijentSoket;
@@ -54,7 +54,7 @@ public class ServerNit extends Thread{
 		
 		
 		try {
-			poruke = new LinkedList<TextMessage>();
+			
 			ulazniTokOdKlijenta = new BufferedReader(new InputStreamReader(soketZaKom.getInputStream()));
 			izlazniTokKaKlijentu = new PrintStream(soketZaKom.getOutputStream());
 			while(true) {
@@ -77,20 +77,37 @@ public class ServerNit extends Thread{
 				}
 				else if(rezim.equals("message")) {
 					String s = ulazniTokOdKlijenta.readLine();
+					izlazniTokKaKlijentu.println("message");
 					TextMessage txtmsg =  gson.fromJson(s, TextMessage.class);
 					System.out.println(txtmsg);
-					
+					Server.poruke.add(txtmsg);
+					izlazniTokKaKlijentu.println(s);
 					
 					for (int i = 0; i < klijenti.length; i++) {
-						if(klijenti[i]!=null) {
-							System.out.println(klijenti[i]);
-						}
-						if(klijenti[i]!=null  && klijenti[i].username!=null
+						if(klijenti[i]!=null && klijenti[i]!=this  && klijenti[i].username!=null
 								&& ( klijenti[i].username.equals(txtmsg.getSender()) ||
 								klijenti[i].username.equals(txtmsg.getReceiver()) ) ){
+							klijenti[i].izlazniTokKaKlijentu.println("message");
 							klijenti[i].izlazniTokKaKlijentu.println(s);
 						}
 					}
+				}
+				else if(rezim.equals("dajcet")) {
+					
+					String partner = ulazniTokOdKlijenta.readLine();
+					
+					LinkedList<TextMessage> porukePom = new LinkedList<TextMessage>();
+					
+					for (TextMessage tm : Server.poruke) {
+						if((tm.getSender().equals(partner) && tm.getReceiver().equals(this.username))
+								|| (tm.getSender().equals(this.username) && tm.getReceiver().equals(partner))) {
+							porukePom.add(tm);
+							
+						}
+					}
+					izlazniTokKaKlijentu.println("dajcet");
+					izlazniTokKaKlijentu.println(gson.toJson(porukePom));
+					
 				}
 			}
 			

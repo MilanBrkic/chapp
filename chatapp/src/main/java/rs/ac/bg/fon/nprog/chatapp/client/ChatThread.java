@@ -1,6 +1,10 @@
 package rs.ac.bg.fon.nprog.chatapp.client;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JList;
 import javax.swing.JTextArea;
@@ -26,15 +30,41 @@ public class ChatThread extends Thread{
 		try {
 			
 			while((linijaOdServer = ulazniTokOdServera.readLine())!=null) {
-				String partner = lista.getSelectedValue().toString();
-				System.out.println(partner+" "+linijaOdServer);
-				
-				TextMessage txtmsg = gson.fromJson(linijaOdServer, TextMessage.class);
-				if(txtmsg.getReceiver().equals(partner)) {
-					textArea.append("You: "+txtmsg.getMessage()+"\n");
+			
+				if(linijaOdServer.equals("message")) {
+					String linijaOdServerPom = ulazniTokOdServera.readLine();
+					String partner = lista.getSelectedValue().toString();
+					System.out.println(partner+" "+linijaOdServerPom);
+					
+					TextMessage txtmsg = gson.fromJson(linijaOdServerPom, TextMessage.class);
+					if(txtmsg.getReceiver().equals(partner)) {
+						textArea.append("You: "+txtmsg.getMessage()+"\n");
+					}
+					else if(txtmsg.getSender().equals(partner)) {						
+						textArea.append(partner+": "+txtmsg.getMessage()+"\n");
+					}
 				}
-				else if(txtmsg.getSender().equals(partner)) {						
-					textArea.append(partner+": "+txtmsg.getMessage()+"\n");
+				else if(linijaOdServer.equals("dajcet")) {
+					System.out.println("usao");
+					String json = "";
+					try {
+						json = ulazniTokOdServera.readLine();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					List<TextMessage> poruke = Arrays.asList(gson.fromJson(json, TextMessage[].class));
+					String partner = lista.getSelectedValue().toString();
+					textArea.setText("");
+					for (TextMessage textMessage : poruke) {
+						if(!textMessage.getSender().equals(partner)) {
+							textArea.append("You: "+textMessage.getMessage()+"\n");
+						}
+						else {
+							textArea.append(partner+": "+textMessage.getMessage()+"\n");
+						}
+							
+					}
 				}
 				
 				

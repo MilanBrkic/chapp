@@ -153,6 +153,7 @@ public class Chat extends JFrame {
 		panel_2.add(scrollPane_2, BorderLayout.CENTER);
 		
 		textArea = new JTextArea();
+		textArea.setEditable(false);
 		scrollPane_2.setViewportView(textArea);
 		textArea.setVisible(false);
 		
@@ -206,12 +207,18 @@ public class Chat extends JFrame {
 				int index = list.getSelectedIndex();
 				partner = list.getSelectedValue().toString();
 				
+				
+				
+				
+				
 				if(!textArea.isVisible()) {
 					textArea.setVisible(true);
 					A = new Thread(new ChatThread(Chat.this.ulazniTokOdServera, textArea, list));
 					A.start();
 				}
 				
+				Chat.this.izlazniTokKaServeru.println("dajcet");
+				Chat.this.izlazniTokKaServeru.println(list.getSelectedValue().toString());
 				
 				
 				txtWriter.requestFocus();

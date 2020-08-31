@@ -2,10 +2,13 @@ package rs.ac.bg.fon.nprog.chatapp.server;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.LinkedList;
+
+import rs.ac.bg.fon.nprog.chatapp.client.TextMessage;
 
 public class Server{
 	static ServerNit klijenti[] = new ServerNit[10];
-	
+	static LinkedList<TextMessage> poruke = new LinkedList<TextMessage>();
 	public static void main(String[] args) {
 		int port = 2222;
 		
